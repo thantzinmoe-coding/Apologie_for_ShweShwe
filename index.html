@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ခွင့်လွှတ်ပေးပါနော်?</title>
+    <style>
+        body {
+            font-family: 'Pyidaungsu', 'Myanmar Text', 'Segoe UI', Tahoma, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #ffe6f2 0%, #ffb3d9 100%); /* Beautiful pink gradient */
+            overflow: hidden; 
+        }
+
+        /* --- ADDED BOUNDARY STYLES HERE --- */
+        #container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 500px; /* Limits the maximum width */
+            background: rgba(255, 255, 255, 0.85); /* Semi-transparent white background */
+            backdrop-filter: blur(10px); /* Glassmorphism blur effect */
+            padding: 50px 20px; /* Inner spacing */
+            border-radius: 25px; /* Rounded corners for the boundary */
+            box-shadow: 0 10px 30px rgba(216, 27, 96, 0.15); /* Soft pink shadow */
+            border: 2px solid rgba(255, 255, 255, 1); /* White border line */
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #d81b60; /* Deep pink for text */
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 3px rgba(255, 179, 217, 0.8);
+            font-size: 32px;
+            transition: all 0.3s ease;
+            padding: 0 20px;
+        }
+
+        #button-container {
+            position: relative;
+            width: 350px;
+            max-width: 100%;
+            height: 60px;
+            margin: 0 auto;
+        }
+
+        button {
+            font-size: 18px;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-family: inherit;
+        }
+
+        #yes-btn {
+            background-color: #ff4d94; /* Bright cute pink */
+            color: white;
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(255, 77, 148, 0.4);
+        }
+
+        #yes-btn:hover {
+            background-color: #ff3385;
+            box-shadow: 0 6px 20px rgba(255, 77, 148, 0.6);
+        }
+
+        #no-btn {
+            background-color: #ffb3cc; /* Softer pink */
+            color: #d81b60;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+            box-shadow: 0 4px 10px rgba(255, 179, 204, 0.5);
+        }
+
+        #message-container {
+            display: none; 
+        }
+
+        .celebration-text {
+            font-size: 36px;
+            color: #d81b60;
+            animation: popIn 0.5s ease-out forwards;
+            line-height: 1.5;
+        }
+
+        .heart {
+            font-size: 50px;
+            animation: beat 1s infinite alternate;
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes beat {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <h1 id="question">ကျွန်တော့်ကို ခွင့်လွှတ်ပေးမှာလားဟင် မမရွှေရွှေ? 🥺</h1>
+        
+        <div id="button-container">
+            <button id="no-btn" onclick="clickNo()">ခွင့်မလွှတ်ဘူး 😤</button>
+            <button id="yes-btn" onclick="clickYes()">ခွင့်လွှတ်တယ် 🥰</button>
+        </div>
+
+        <div id="message-container">
+            <h1 class="celebration-text">ဟုတ်ကဲ့ပါဗျ! 🎉<br>စိတ်မကောက်နဲ့တော့ ရွှေရွှေ 😘<br><span class="heart">❤️</span></h1>
+        </div>
+    </div>
+
+    <script>
+        // Array of cutie apologizing texts for the No button in Myanmar (5 attempts)
+        const noButtonTexts = [
+            "တကယ်ကြီးလား? 🥺", 
+            "ပြန်စဉ်းစားပါဦးနော်...👉👈", 
+            "မလုပ်ပါနဲ့... တောင်းပန်ပါတယ်နော် 😭", 
+            "တစ်ခါလေးပဲ ခွင့်လွှတ်ပေးပါနော် 🥺", 
+            "ဒီလောက်တောင်းပန်နေတာလေ 😭"
+        ];
+        
+        let noClickCount = 0;
+
+        // Pre-defined sizes for each click (1-4 = gentle growth, 5 = full cover)
+        const yesSizes = [
+            { font: 20, padV: 12, padH: 28 },   // click 1 – tiny nudge
+            { font: 23, padV: 14, padH: 34 },   // click 2 – a bit bigger
+            { font: 27, padV: 18, padH: 42 },   // click 3 – noticeable
+            { font: 32, padV: 22, padH: 54 },   // click 4 – getting close
+            { font: 60, padV: 40, padH: 120 },  // click 5 – fully covers No
+        ];
+        const noScales = [0.9, 0.8, 0.7, 0.55, 0.3]; // shrink per click
+
+        function clickNo() {
+            const noBtn = document.getElementById('no-btn');
+            const yesBtn = document.getElementById('yes-btn');
+
+            // Change the text of the No button based on how many times it was clicked
+            if (noClickCount < noButtonTexts.length) {
+                noBtn.innerText = noButtonTexts[noClickCount];
+            } else {
+                noBtn.innerText = "ကဲ... 'ဟင့်အင်း' လို့ နှိပ်ခွင့်မရှိတော့ပါဘူး 😝";
+            }
+
+            // Apply the pre-defined size for this click step
+            const step = Math.min(noClickCount, yesSizes.length - 1);
+            const size = yesSizes[step];
+            yesBtn.style.fontSize = size.font + 'px';
+            yesBtn.style.padding = size.padV + 'px ' + size.padH + 'px';
+
+            // Make the No button smaller
+            const scale = noScales[step];
+            noBtn.style.transform = `translateY(-50%) scale(${scale})`;
+
+            noClickCount++;
+        }
+
+        function clickYes() {
+            // Hide the question and buttons
+            document.getElementById('question').style.display = 'none';
+            document.getElementById('button-container').style.display = 'none';
+            
+            // Show the celebration message
+            document.getElementById('message-container').style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>
